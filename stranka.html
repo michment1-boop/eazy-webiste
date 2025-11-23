@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Elektronika Pro – Profesionálny e-shop</title>
+<style>
+:root{ --brand-900:#0b1821; --brand-700:#0f6bff; --brand-500:#4591ff; --accent:#ffb400; --muted:#6b7280; --card:#ffffff; --glass: rgba(255,255,255,0.06); --radius:12px; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#f7f9fc, #eef4ff);color:var(--brand-900)}
+header{background:linear-gradient(90deg,var(--brand-900),var(--brand-700));color:white;padding:18px 20px;display:flex;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo svg{width:48px;height:48px}
+nav{margin-left:auto;display:flex;gap:12px}
+nav a{color:rgba(255,255,255,0.92);text-decoration:none;font-weight:600}
+.container{max-width:1200px;margin:28px auto;padding:0 16px}
+.hero{display:grid;grid-template-columns:1fr 420px;gap:24px;align-items:center}
+.hero-card{background:var(--card);padding:28px;border-radius:var(--radius);box-shadow:0 8px 30px rgba(16,24,40,0.08)}
+.hero h1{margin:0 0 8px;font-size:28px}
+.hero p{margin:0;color:var(--muted)}
+.search-bar{display:flex;gap:8px;margin-top:16px}
+.search-bar input{flex:1;padding:12px;border-radius:10px;border:1px solid #e6eef8}
+.btn{background:var(--brand-700);color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:24px}
+.product{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 20px rgba(16,24,40,0.06);display:flex;flex-direction:column;gap:10px}
+.product img{width:100%;height:180px;object-fit:contain;border-radius:8px;background:linear-gradient(180deg,#fff,#f3f7ff)}
+.price-row{display:flex;justify-content:space-between;align-items:center}
+.price{font-weight:700}
+.footer{margin-top:36px;padding:18px;background:transparent;border-top:1px solid #eef3fb;border-radius:8px}
+.cart-btn{position:fixed;right:18px;bottom:18px;background:var(--brand-700);color:white;padding:14px;border-radius:999px;box-shadow:0 12px 30px rgba(15,107,255,0.18);border:none}
+.cart-panel{position:fixed;right:18px;bottom:82px;width:360px;max-height:70vh;background:var(--card);border-radius:12px;padding:14px;box-shadow:0 20px 60px rgba(2,6,23,0.2);overflow:auto}
+@media (max-width:880px){ .hero{grid-template-columns:1fr} .cart-panel{right:12px;left:12px;width:auto} }
+.muted{color:var(--muted);font-size:13px}
+.tag{background:var(--glass);padding:6px 8px;border-radius:999px;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">
+<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+<rect width="48" height="48" rx="10" fill="white"/>
+<path d="M12 30 L20 18 L28 30 Z" fill="var(--brand-700)"/>
+<circle cx="36" cy="12" r="6" fill="var(--accent)"/>
+</svg>
+<div>
+<div style="font-weight:800">Elektronika Pro</div>
+<div style="font-size:12px;color:rgba(255,255,255,0.9)">Profesionálny e-shop</div>
+</div>
+</div>
+<nav>
+<a href="#products">Produkty</a>
+<a href="onas.html">O nás</a>
+<a href="kontakt.html">Kontakt</a>
+<a href="admin.html">Admin</a>
+</nav>
+</header>
+
+<main class="container">
+<section class="hero">
+<div class="hero-card">
+<h1>Kvalitná elektronika. Rýchle doručenie. Záruka.</h1>
+<p class="muted">Vyberte si z telefónov, notebookov, smart príslušenstva a domácich zariadení. Demo e-shop s plne funkčným frontendom — košík, checkout (simulovaný).</p>
+<div class="search-bar">
+<input id="search" placeholder="Hľadať produkty..." />
+<button class="btn" onclick="searchProducts()">Hľadať</button>
+</div>
+<div style="margin-top:16px;display:flex;gap:8px;align-items:center">
+<div class="tag">Doprava do 48h</div>
+<div class="tag">14 dní na vrátenie</div>
+</div>
+</div>
+</section>
+
+<section id="products">
+<h2 style="margin-top:28px">Produkty</h2>
+<div class="products" id="productsGrid"></div>
+</section>
+
+<div class="footer">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
+<div>© 2025 Elektronika Pro</div>
+<div class="muted">Vyvinuté: demo front-end, potrebuje server pre reálne platby a správu skladov.</div>
+</div>
+</div>
+</main>
+
+<button class="cart-btn" onclick="openCart()">🛒 Košík (<span id="cartCount">0</span>)</button>
+<div id="cartPanel" class="cart-panel" style="display:none"></div>
+
+<script>
+// --- Products loaded from admin.html localStorage ---
+function getProducts(){
+  const p = localStorage.getItem('products');
+  return p ? JSON.parse(p) : [];
+}
+function setProducts(arr){ localStorage.setItem('products',JSON.stringify(arr)); }
+function renderProducts(filter=""){
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML='';
+  const products = getProducts().filter(p => p.title.toLowerCase().includes(filter.toLowerCase()) || p.desc.toLowerCase().includes(filter.toLowerCase()));
+  products.forEach(p => {
+    const div = document.createElement('div');
+    div.className='product';
+    div.innerHTML=`<img src="${p.img}" alt="${p.title}" /><div style="flex:1"><h4>${p.title}</h4><p class="muted">${p.desc}</p></div><div class="price-row"><div class="price">€${p.price.toFixed(2)}</div><div><button onclick="addToCart('${p.id}')" class="btn">Pridať</button></div></div>`;
+    grid.appendChild(div);
+  })
+}
+
+function searchProducts(){ renderProducts(document.getElementById('search').value); }
+function getCart(){ return JSON.parse(localStorage.getItem('demo_cart')||'[]'); }
+function setCart(c){ localStorage.setItem('demo_cart',JSON.stringify(c)); updateCartCount(); }
+function addToCart(id){ const cart=getCart(); const item=cart.find(x=>x.id===id); if(item)item.q++; else cart.push({id,q:1}); setCart(cart); alert('Pridané do košíka'); }
+function updateCartCount(){ const c=getCart().reduce((s,i)=>s+i.q,0); document.getElementById('cartCount').innerText=c; }
+function openCart(){ const panel = document.getElementById('cartPanel'); panel.style.display='block'; renderCart(); }
+function closeCart(){ document.getElementById('cartPanel').style.display='none'; }
+function renderCart(){ const panel = document.getElementById('cartPanel'); const cart = getCart(); const products = getProducts(); if(cart.length===0){ panel.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><strong>Váš košík</strong><button onclick="closeCart()">✕</button></div><p class="muted">Košík je prázdny.</p>`; return;} let html=`<div style="display:flex;justify-content:space-between;align-items:center"><strong>Váš košík</strong><button onclick="closeCart()">✕</button></div>`; let total=0; cart.forEach(ci=>{ const p = products.find(x=>x.id===ci.id); const line = p.price*ci.q; total+=line; html+=`<div style="display:flex;gap:8px;align-items:center;padding:10px 0;border-top:1px solid #f1f6ff"><img src="${p.img}" style="width:60px;height:44px;object-fit:contain;border-radius:6px"/><div style="flex:1"><div style="font-weight:700">${p.title}</div><div class="muted">€${p.price.toFixed(2)} x ${ci.q}</div></div><div style="text-align:right">€${line.toFixed(2)}<div style="margin-top:6px"><button onclick="changeQty('${ci.id}',1)" style="margin-right:6px">+</button><button onclick="changeQty('${ci.id}',-1)">-</button></div></div></div>`});
+  html+=`<div style="border-top:1px solid #eef6ff;padding-top:12px;display:flex;justify-content:space-between;align-items:center"><div><strong>Spolu</strong><div class="muted">bez dopravy</div></div><div style="font-weight:800">€${total.toFixed(2)}</div></div><div style="margin-top:10px;display:flex;gap:8px"><button class="btn" onclick="checkout()">Prejsť k platbe</button><button onclick="clearCart()" style="background:#ef4444;color:white;border:none;padding:10px;border-radius:10px;">Vymazať</button></div>`;
+  panel.innerHTML=html;
+}
+function changeQty(id,delta){ const cart=getCart(); const item=cart.find(x=>x.id===id); if(!item) return; item.q+=delta; if(item.q<=0) { const idx=cart.findIndex(x=>x.id===id); cart.splice(idx,1); } setCart(cart); renderCart(); }
+function clearCart(){ localStorage.removeItem('demo_cart'); updateCartCount(); renderCart(); }
+function checkout(){ const cart = getCart(); if(cart.length===0){ alert('Košík je prázdny'); return; } const panel = document.getElementById('cartPanel'); let total=0; const products=getProducts(); cart.forEach(ci=>{ const p=products.find(x=>x.id===ci.id); total+=p.price*ci.q }); panel.innerHTML=`<h3>Checkout (demo)</h3><p class="muted">Suma: €${total.toFixed(2)} — platba je simulovaná.</p><div style="display:flex;gap:8px"><button class="btn" onclick="simulatePayment()">Zaplať (simulácia)</button><button onclick="renderCart()">Späť</button></div>`; }
+function simulatePayment(){ localStorage.removeItem('demo_cart'); updateCartCount(); document.getElementById('cartPanel').innerHTML=`<h3>Platba prebehla</h3><p class="muted">Ďakujeme za nákup — toto je demo režim.</p><div style="margin-top:10px"><button onclick="closeCart()" class="btn">Zavrieť</button></div>`; }
+
+// --- Init ---
+renderProducts();
+updateCartCount();
+
+// --- Aktualizácia produktov z admin.html ---
+window.addEventListener('storage', function(e){ if(e.key==='products') renderProducts(); });
+</script>
+</body>
+</html>

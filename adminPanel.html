@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - ElektronikaPro</title>
+  <style>
+    body {
+      margin:0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg,#f7f9fc, #eef4ff);
+      color: #0a0a0a;
+    }
+    header {
+      background: linear-gradient(90deg,#0a0a0a,#0f6bff);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(16,24,40,0.08);
+    }
+    input[type=text], input[type=number], button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #0f6bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #094bb5;
+    }
+    .product-item {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
+    }
+    .product-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo"><strong>ElektronikaPro Admin</strong></div>
+  <nav>
+    <a href="index.html">Domov</a>
+    <a href="onas.html">O nás</a>
+    <a href="kontakt.html">Kontakt</a>
+    <a href="admin.html">Logout</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h1>Admin Panel</h1>
+  <p>Spravujte produkty vášho e-shopu.</p>
+
+  <h2>Pridať nový produkt</h2>
+  <input type="text" id="productName" placeholder="Názov produktu">
+  <input type="text" id="productDesc" placeholder="Popis produktu">
+  <input type="number" id="productPrice" placeholder="Cena produktu">
+  <input type="text" id="productImg" placeholder="URL obrázku">
+  <button onclick="addProduct()">Pridať produkt</button>
+
+  <h2>Existujúce produkty</h2>
+  <div id="productList"></div>
+</div>
+
+<script>
+let products = JSON.parse(localStorage.getItem('products')) || [];
+
+function renderProducts(){
+  const list = document.getElementById('productList');
+  list.innerHTML = '';
+  products.forEach((p, index) => {
+    const div = document.createElement('div');
+    div.className = 'product-item';
+    div.innerHTML = `<strong>${p.name}</strong> - ${p.desc} - ${p.price} € <button onclick='deleteProduct(${index})'>Odstrániť</button>`;
+    list.appendChild(div);
+  });
+}
+
+function addProduct(){
+  const name = document.getElementById('productName').value;
+  const desc = document.getElementById('productDesc').value;
+  const price = document.getElementById('productPrice').value;
+  const img = document.getElementById('productImg').value;
+
+  if(name && desc && price){
+    products.push({name, desc, price, img});
+    localStorage.setItem('products', JSON.stringify(products));
+    renderProducts();
+    document.getElementById('productName').value='';
+    document.getElementById('productDesc').value='';
+    document.getElementById('productPrice').value='';
+    document.getElementById('productImg').value='';
+  } else {
+    alert('Vyplňte všetky polia');
+  }
+}
+
+function deleteProduct(index){
+  products.splice(index,1);
+  localStorage.setItem('products', JSON.stringify(products));
+  renderProducts();
+}
+
+renderProducts();
+</script>
+
+<footer>
+  © 2025 ElektronikaPro – Všetky práva vyhradené
+</footer>
+</body>
+</html>
